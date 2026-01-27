@@ -120,52 +120,52 @@ const App = () => {
 
   // ... Keep all the form components (LocalityDetailsForm, IndividualsForm, etc.) exactly the same ...
 
-  const MobileMenu = () => {
-    if (!mobileMenuOpen) return null;
+ const MobileMenu = () => {
+  if (!mobileMenuOpen) return null;
 
-    return (
-      <div className="mobile-menu">
-        <div className="mobile-menu-content">
-          <div className="mobile-menu-header">
-            <h3 className="mobile-menu-title">SI-NSA SRP</h3>
+  return (
+    <div className="mobile-menu">
+      <div 
+        className="mobile-menu-overlay"
+        onClick={() => setMobileMenuOpen(false)}
+      />
+      <div className="mobile-menu-content">
+        <div className="mobile-menu-header">
+          <h3 className="mobile-menu-title">SI-NSA SRP</h3>
+          <button 
+            onClick={() => setMobileMenuOpen(false)}
+            className="mobile-menu-close"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        <nav className="mobile-nav">
+          <button 
+            onClick={() => {
+              setActiveView('dashboard');
+              setMobileMenuOpen(false);
+            }}
+            className={`mobile-nav-item ${activeView === 'dashboard' ? 'mobile-nav-item-active' : ''}`}
+          >
+            <Home className="w-4 h-4" />Dashboard
+          </button>
+          {forms.map(form => (
             <button 
-              onClick={() => setMobileMenuOpen(false)}
-              className="mobile-menu-close"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-          <nav className="mobile-nav">
-            <button 
+              key={form.id}
               onClick={() => {
-                setActiveView('dashboard');
+                setActiveView(form.id);
                 setMobileMenuOpen(false);
               }}
-              className={`mobile-nav-item ${activeView === 'dashboard' ? 'mobile-nav-item-active' : ''}`}
+              className={`mobile-nav-item ${activeView === form.id ? 'mobile-nav-item-active' : ''}`}
             >
-              <Home className="w-4 h-4" />Dashboard
+              <form.icon className="w-4 h-4" />{form.name}
             </button>
-            {forms.map(form => (
-              <button 
-                key={form.id}
-                onClick={() => {
-                  setActiveView(form.id);
-                  setMobileMenuOpen(false);
-                }}
-                className={`mobile-nav-item ${activeView === form.id ? 'mobile-nav-item-active' : ''}`}
-              >
-                <form.icon className="w-4 h-4" />{form.name}
-              </button>
-            ))}
-          </nav>
-        </div>
-        <div 
-          className="mobile-menu-overlay"
-          onClick={() => setMobileMenuOpen(false)}
-        />
+          ))}
+        </nav>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   const renderFormContent = () => {
     const form = forms.find(f => f.id === activeView);
