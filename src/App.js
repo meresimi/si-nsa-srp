@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Users, MapPin, BookOpen, ChevronRight, Plus, Menu, X, Save, Trash2, Download, ArrowLeft, Home, ChevronDown } from 'lucide-react';
+import { Users, MapPin, BookOpen, ChevronRight, Plus, Menu, X, Save, Trash2, Download, ArrowLeft, Home } from 'lucide-react';
 import './App.css';
+
+// IMPORT THE SEPARATE COMPONENT FILES
+import LocalityForm from './components/Forms/LocalityForm';
+import IndividualsForm from './components/Forms/IndividualsForm';
+import ChildrenClassesForm from './components/Forms/ChildrenClassesForm';
+import JuniorYouthGroupForm from './components/Forms/JuniorYouthGroupForm';
+import StudyCircleForm from './components/Forms/StudyCircleForm';
 
 const STORAGE_KEYS = {
   localities: 'sinsa_localities',
@@ -118,58 +125,107 @@ const App = () => {
     );
   };
 
-  // ... Keep all the form components (LocalityDetailsForm, IndividualsForm, etc.) exactly the same ...
+  // CREATE HANDLER FUNCTIONS FOR EACH FORM
+  const handleSaveLocality = (data) => {
+    saveRecord('localities', data);
+  };
 
- const MobileMenu = () => {
-  if (!mobileMenuOpen) return null;
+  const handleSaveIndividuals = (data) => {
+    saveRecord('individuals', data);
+  };
 
-  return (
-    <div className="mobile-menu">
-      <div 
-        className="mobile-menu-overlay"
-        onClick={() => setMobileMenuOpen(false)}
-      />
-      <div className="mobile-menu-content">
-        <div className="mobile-menu-header">
-          <h3 className="mobile-menu-title">SI-NSA SRP</h3>
-          <button 
-            onClick={() => setMobileMenuOpen(false)}
-            className="mobile-menu-close"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        <nav className="mobile-nav">
-          <button 
-            onClick={() => {
-              setActiveView('dashboard');
-              setMobileMenuOpen(false);
-            }}
-            className={`mobile-nav-item ${activeView === 'dashboard' ? 'mobile-nav-item-active' : ''}`}
-          >
-            <Home className="w-4 h-4" />Dashboard
-          </button>
-          {forms.map(form => (
+  const handleSaveChildrenClasses = (data) => {
+    saveRecord('childrenClasses', data);
+  };
+
+  const handleSaveJuniorYouthGroups = (data) => {
+    saveRecord('juniorYouthGroups', data);
+  };
+
+  const handleSaveStudyCircles = (data) => {
+    saveRecord('studyCircles', data);
+  };
+
+  const RecordsList = ({ formType }) => {
+    const records = savedRecords[formType] || [];
+    return (
+      <div className="records-list">
+        <h3 className="records-title">Saved Records ({records.length})</h3>
+        {records.length === 0 ? (
+          <p className="records-empty">No records saved yet</p>
+        ) : (
+          <div className="records-container">
+            {records.map((record) => (
+              <div key={record.id} className="record-item">
+                <div>
+                  <p className="record-date">{new Date(record.timestamp).toLocaleString()}</p>
+                  <p className="record-info">{record.region || record.locality || 'Record #' + record.id}</p>
+                </div>
+                <button onClick={() => deleteRecord(formType, record.id)} className="btn-delete">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const MobileMenu = () => {
+    if (!mobileMenuOpen) return null;
+
+    return (
+      <div className="mobile-menu">
+        <div 
+          className="mobile-menu-overlay"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+        <div className="mobile-menu-content">
+          <div className="mobile-menu-header">
+            <h3 className="mobile-menu-title">SI-NSA SRP</h3>
             <button 
-              key={form.id}
+              onClick={() => setMobileMenuOpen(false)}
+              className="mobile-menu-close"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          <nav className="mobile-nav">
+            <button 
               onClick={() => {
-                setActiveView(form.id);
+                setActiveView('dashboard');
                 setMobileMenuOpen(false);
               }}
-              className={`mobile-nav-item ${activeView === form.id ? 'mobile-nav-item-active' : ''}`}
+              className={`mobile-nav-item ${activeView === 'dashboard' ? 'mobile-nav-item-active' : ''}`}
             >
-              <form.icon className="w-4 h-4" />{form.name}
+              <Home className="w-4 h-4" />Dashboard
             </button>
-          ))}
-        </nav>
+            {forms.map(form => (
+              <button 
+                key={form.id}
+                onClick={() => {
+                  setActiveView(form.id);
+                  setMobileMenuOpen(false);
+                }}
+                className={`mobile-nav-item ${activeView === form.id ? 'mobile-nav-item-active' : ''}`}
+              >
+                <form.icon className="w-4 h-4" />{form.name}
+              </button>
+            ))}
+          </nav>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
   const renderFormContent = () => {
     const form = forms.find(f => f.id === activeView);
     if (!form) return null;
+
+    // Prepare data for the forms that need it
+    const localities = savedRecords.localities || [];
+    const individuals = savedRecords.individuals || [];
 
     return (
       <div className="page-container">
@@ -181,11 +237,45 @@ const App = () => {
         </div>
 
         <div className="page-content">
-          {activeView === 'localities' && <LocalityDetailsForm />}
-          {activeView === 'individuals' && <IndividualsForm />}
-          {activeView === 'childrenClasses' && <ChildrenClassesForm />}
-          {activeView === 'juniorYouthGroups' && <JuniorYouthGroupForm />}
-          {activeView === 'studyCircles' && <StudyCircleForm />}
+          {activeView === 'localities' && (
+            <LocalityForm 
+              onSave={handleSaveLocality} 
+              initialData={{}}
+            />
+          )}
+          {activeView === 'individuals' && (
+            <IndividualsForm 
+              onSave={handleSaveIndividuals} 
+              initialData={{}}
+            />
+          )}
+          {activeView === 'childrenClasses' && (
+            <ChildrenClassesForm 
+              onSave={handleSaveChildrenClasses}
+              onCancel={() => setActiveView('dashboard')}
+              initialData={{}}
+              localities={localities}
+              individuals={individuals}
+            />
+          )}
+          {activeView === 'juniorYouthGroups' && (
+            <JuniorYouthGroupForm 
+              onSave={handleSaveJuniorYouthGroups}
+              onCancel={() => setActiveView('dashboard')}
+              initialData={{}}
+              localities={localities}
+              individuals={individuals}
+            />
+          )}
+          {activeView === 'studyCircles' && (
+            <StudyCircleForm 
+              onSave={handleSaveStudyCircles}
+              onCancel={() => setActiveView('dashboard')}
+              initialData={{}}
+              localities={localities}
+              individuals={individuals}
+            />
+          )}
         </div>
 
         <RecordsList formType={activeView} />
