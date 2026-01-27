@@ -1,0 +1,72 @@
+appId: com.si.nsa.srp
+productName: SI-NSA SRP
+copyright: Copyright © 2024 SI-NSA
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - "build/**/*"
+  - "node_modules/**/*"
+  - "package.json"
+  - "public/electron.js"
+
+extraResources:
+  - "public/**"
+  - "!public/electron.js"
+
+win:
+  target: nsis
+  icon: "public/favicon.ico"
+  publisherName: SI-NSA
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: SI-NSA SRP
+
+mac:
+  target: dmg
+  icon: "public/icon.icns"
+  category: public.app-category.productivity
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: "build/entitlements.mac.plist"
+  entitlementsInherit: "build/entitlements.mac.plist"
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+
+linux:
+  target: AppImage
+  icon: "public/icon.png"
+  category: Utility
+  maintainer: SI-NSA
+
+appImage:
+  desktop:
+    Name: SI-NSA SRP
+    Comment: Statistical Report Program Data Collection
+    Exec: si-nsa-srp
+    Icon: si-nsa-srp
+    Terminal: false
+    Type: Application
+    Categories: Utility
+
+extraMetadata:
+  main: "public/electron.js"
+
+npmRebuild: false
+buildDependenciesFromSource: true
+nodeGypRebuild: false
+electronDownload:
+  mirror: "https://npmmirror.com/mirrors/electron/"
