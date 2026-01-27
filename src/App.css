@@ -13,7 +13,6 @@
   width: 100%;
   height: 100%;
   z-index: 1000;
-  display: flex;
 }
 
 .mobile-menu-overlay {
@@ -26,7 +25,9 @@
 }
 
 .mobile-menu-content {
-  position: relative;
+  position: absolute; /* ← CHANGE TO absolute */
+  top: 0; /* ← ADD THIS */
+  left: 0; /* ← ADD THIS */
   background-color: #111827;
   color: white;
   width: 280px;
@@ -34,6 +35,7 @@
   z-index: 1001;
   overflow-y: auto;
   animation: slideIn 0.3s ease-out;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3); /* ← ADD FOR VISIBILITY */
 }
 
 @keyframes slideIn {
