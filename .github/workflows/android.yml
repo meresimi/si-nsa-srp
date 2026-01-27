@@ -75,24 +75,9 @@ jobs:
         path: android/app/build/outputs/apk/release/*.apk
         retention-days: 7
         
-    - name: Create GitHub Release (on main branch only)
-      if: github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: android/app/build/outputs/apk/release/*.apk
-        tag_name: android-v${{ github.run_number }}
-        name: Android APK Release v${{ github.run_number }}
-        body: |
-          Android APK built from commit ${{ github.sha }}
-          
-          **Build Information:**
-          - Commit: ${{ github.sha }}
-          - Branch: ${{ github.ref }}
-          - Build Number: ${{ github.run_number }}
-          
-          **Installation:**
-          1. Download the APK file
-          2. Enable "Install from unknown sources" in Android settings
-          3. Tap the APK file to install
-        draft: false
-        prerelease: false
+    - name: Build completed successfully
+      run: |
+        echo "✅ Android APK built successfully!"
+        echo "📱 Download the APK from the Artifacts section above"
+        echo "📲 Enable 'Install from unknown sources' on your Android device"
+        echo "👉 Tap the APK file to install"
