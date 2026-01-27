@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+
+# Allow all for PWA
+Allow: /
+
+# Sitemap (if you have one)
+# Sitemap: https://yourdomain.com/sitemap.xml
