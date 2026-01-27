@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Users, MapPin, BookOpen, Award, ChevronRight, Plus, Menu, X, Save, Trash2, Download, ArrowLeft } from 'lucide-react';
+import { Users, MapPin, BookOpen, ChevronRight, Plus, Menu, X, Save, Trash2, Download, ArrowLeft } from 'lucide-react';
 import './App.css';
 
 const STORAGE_KEYS = {
@@ -61,7 +61,7 @@ const App = () => {
 
   const DashboardView = () => {
     const totalRecords = Object.values(savedRecords).reduce((sum, records) => sum + records.length, 0);
-    
+
     return (
       <div className="dashboard-container">
         <div className="dashboard-header">
@@ -94,7 +94,7 @@ const App = () => {
             <div className="stat-label">Activities</div>
           </div>
         </div>
-        
+
         <div className="forms-grid">
           {forms.map(form => (
             <div key={form.id} onClick={() => setActiveView(form.id)} className="form-card">
@@ -370,7 +370,7 @@ const App = () => {
             </tbody>
           </table>
         </div>
-        
+
         <div className="form-actions">
           <button onClick={addRow} className="btn-secondary">
             <Plus className="w-4 h-4" />Add Row
@@ -678,7 +678,7 @@ const App = () => {
           </button>
           <h1 className="page-title">{form.name}</h1>
         </div>
-        
+
         <div className="page-content">
           {activeView === 'localities' && <LocalityDetailsForm />}
           {activeView === 'individuals' && <IndividualsForm />}
@@ -717,7 +717,7 @@ const App = () => {
           </button>
           <h1 className="header-title">SI-NSA SRP Data Collection</h1>
         </div>
-        
+
         {activeView === 'dashboard' ? <DashboardView /> : renderFormContent()}
       </div>
     </div>
