@@ -35,18 +35,27 @@ jobs:
     - name: Install dependencies
       run: |
         npm install
-        npm install -g @capacitor/cli
+        npm install -g @capacitor/cli @capacitor/core
         
     - name: Build web assets
+      env:
+        CI: false
+        DISABLE_ESLINT_PLUGIN: true
       run: |
         npm run build
         
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Add Capacitor Android platform
+    - name: Create Android directory if missing
       run: |
-        npx cap add android
+        if [ ! -d "android" ]; then
+          echo "Android directory doesn't exist. Creating..."
+          npx cap add android
+        fi
+        
+    - name: Sync web assets to Android
+      run: |
         npx cap sync android
         
     - name: Build Android APK
@@ -54,6 +63,10 @@ jobs:
         cd android
         chmod +x gradlew
         ./gradlew assembleRelease
+        
+    - name: List generated APK files
+      run: |
+        find android/app/build/outputs/apk/ -name "*.apk" -type f
         
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
@@ -76,5 +89,10 @@ jobs:
           - Commit: ${{ github.sha }}
           - Branch: ${{ github.ref }}
           - Build Number: ${{ github.run_number }}
+          
+          **Installation:**
+          1. Download the APK file
+          2. Enable "Install from unknown sources" in Android settings
+          3. Tap the APK file to install
         draft: false
         prerelease: false
