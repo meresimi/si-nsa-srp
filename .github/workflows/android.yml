@@ -34,7 +34,7 @@ jobs:
         
     - name: Install dependencies
       run: |
-        npm ci
+        npm install
         npm install -g @capacitor/cli
         
     - name: Build web assets
