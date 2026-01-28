@@ -10,8 +10,7 @@ import {
   BookMarked,
   Clock,
   Award,
-  Users as UsersIcon,
-  BookCheck  // Remove this
+  Users as UsersIcon
 } from 'lucide-react';
 import FormField from '../Shared/FormField';
 
