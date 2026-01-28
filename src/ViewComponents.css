@@ -54,7 +54,7 @@
 .filter-dropdown-wrapper {
   position: relative;
   flex: 1;
-  max-width: 280px;
+  max-width: 320px;
 }
 
 .filter-button-main {
@@ -64,7 +64,7 @@
   width: 100%;
   padding: 0.75rem 1.25rem;
   background: white;
-  border: 2px solid #e5e7eb;
+  border: 2px solid #d1d5db;
   border-radius: 0.75rem;
   font-weight: 600;
   font-size: 0.9375rem;
@@ -90,18 +90,19 @@
   position: fixed;
   inset: 0;
   z-index: 40;
+  background: transparent;
 }
 
-/* Dropdown List */
+/* Dropdown List - FIXED WITH BORDERS */
 .filter-dropdown-list {
   position: absolute;
   top: calc(100% + 0.5rem);
   left: 0;
   right: 0;
   background: white;
-  border: 2px solid #e5e7eb;
+  border: 2px solid #d1d5db;
   border-radius: 0.75rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   z-index: 50;
   overflow: hidden;
   animation: dropdownSlide 0.2s ease;
@@ -118,7 +119,7 @@
   }
 }
 
-/* Dropdown Option Item */
+/* Dropdown Option Item - FIXED VERTICAL ARRANGEMENT */
 .filter-option-item {
   position: relative;
   display: flex;
@@ -128,7 +129,7 @@
   padding: 0.875rem 1.25rem;
   background: transparent;
   border: none;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
   text-align: left;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -142,7 +143,7 @@
 }
 
 .filter-option-item:hover {
-  background: #f9fafb;
+  background: #f3f4f6;
   color: #2563eb;
 }
 
@@ -150,6 +151,7 @@
   background: #eff6ff;
   color: #2563eb;
   font-weight: 600;
+  border-left: 3px solid #2563eb;
 }
 
 .selected-indicator {
@@ -178,7 +180,7 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   margin-bottom: 2rem;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
 }
 
 .create-form-header-bar {
@@ -187,7 +189,7 @@
   justify-content: space-between;
   padding: 1.5rem;
   background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .create-form-icon-title {
@@ -250,7 +252,7 @@
   background: white;
   border-radius: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   overflow: hidden;
 }
 
@@ -260,7 +262,7 @@
   justify-content: space-between;
   padding: 1.75rem 2rem;
   background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-  border-bottom: 2px solid #f3f4f6;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .content-header-left {
@@ -778,6 +780,22 @@
   border-radius: 0.875rem;
   color: #92400e;
   margin-bottom: 2rem;
+}
+
+.btn-export-header {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: transparent;
+  color: #374151;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+
+.btn-export-header:hover {
+  background-color: #f3f4f6;
 }
 
 /* ========================================
