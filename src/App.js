@@ -1,61 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { Users, MapPin, BookOpen, ChevronRight, Plus, Menu, X, Save, Trash2, Download, ArrowLeft, Home } from 'lucide-react';
+import { Users, MapPin, BookOpen, ChevronRight, Menu, X, Download, ArrowLeft, Home } from 'lucide-react';
 import './App.css';
 
-// IMPORT THE SEPARATE COMPONENT FILES
+// Import form components
 import LocalityForm from './components/Forms/LocalityForm';
 import IndividualsForm from './components/Forms/IndividualsForm';
 import ChildrenClassesForm from './components/Forms/ChildrenClassesForm';
 import JuniorYouthGroupForm from './components/Forms/JuniorYouthGroupForm';
 import StudyCircleForm from './components/Forms/StudyCircleForm';
 
-const STORAGE_KEYS = {
-  localities: 'sinsa_localities',
-  individuals: 'sinsa_individuals',
-  childrenClasses: 'sinsa_children_classes',
-  juniorYouthGroups: 'sinsa_junior_youth_groups',
-  studyCircles: 'sinsa_study_circles'
-};
+// Import shared components
+import RecordsList from './components/Shared/RecordsList';
+
+// Import utilities
+import { STORAGE_KEYS } from './utils/constants';
+import { getAllRecords } from './utils/storage';
+import { exportAllData } from './utils/exportData';
 
 const App = () => {
   const [activeView, setActiveView] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [savedRecords, setSavedRecords] = useState({});
 
+  // Load data on mount
   useEffect(() => {
-    const loaded = {};
-    Object.entries(STORAGE_KEYS).forEach(([key, storageKey]) => {
-      const data = localStorage.getItem(storageKey);
-      loaded[key] = data ? JSON.parse(data) : [];
-    });
-    setSavedRecords(loaded);
+    loadAllData();
   }, []);
+
+  const loadAllData = () => {
+    const loaded = {
+      localities: getAllRecords(STORAGE_KEYS.localities),
+      individuals: getAllRecords(STORAGE_KEYS.individuals),
+      childrenClasses: getAllRecords(STORAGE_KEYS.childrenClasses),
+      juniorYouthGroups: getAllRecords(STORAGE_KEYS.juniorYouthGroups),
+      studyCircles: getAllRecords(STORAGE_KEYS.studyCircles)
+    };
+    setSavedRecords(loaded);
+  };
 
   const saveRecord = (formType, data) => {
     const records = [...(savedRecords[formType] || [])];
-    const newRecord = { id: Date.now(), timestamp: new Date().toISOString(), ...data };
+    const newRecord = { 
+      id: Date.now(), 
+      timestamp: new Date().toISOString(), 
+      ...data 
+    };
     records.push(newRecord);
     localStorage.setItem(STORAGE_KEYS[formType], JSON.stringify(records));
     setSavedRecords(prev => ({ ...prev, [formType]: records }));
     alert('Record saved successfully!');
+    loadAllData(); // Reload data
   };
 
   const deleteRecord = (formType, id) => {
-    if (!window.confirm('Delete this record?')) return;
+    if (!window.confirm('Are you sure you want to delete this record?')) return;
     const records = savedRecords[formType].filter(r => r.id !== id);
     localStorage.setItem(STORAGE_KEYS[formType], JSON.stringify(records));
     setSavedRecords(prev => ({ ...prev, [formType]: records }));
+    loadAllData(); // Reload data
   };
 
-  const exportData = () => {
-    const dataStr = JSON.stringify(savedRecords, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `srp-data-${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const handleExportData = () => {
+    try {
+      exportAllData();
+      alert('Data exported successfully!');
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export data. Please try again.');
+    }
   };
 
   const forms = [
@@ -76,7 +88,7 @@ const App = () => {
             <h1 className="dashboard-title">SRP Data Collection</h1>
             <p className="dashboard-subtitle">Systematic Regional Program - Community Building</p>
           </div>
-          <button onClick={exportData} className="btn-export">
+          <button onClick={handleExportData} className="btn-export">
             <Download className="w-4 h-4" /> Export
           </button>
         </div>
@@ -96,7 +108,9 @@ const App = () => {
           </div>
           <div className="stat-card">
             <div className="stat-value text-orange-600">
-              {(savedRecords.childrenClasses?.length || 0) + (savedRecords.juniorYouthGroups?.length || 0) + (savedRecords.studyCircles?.length || 0)}
+              {(savedRecords.childrenClasses?.length || 0) + 
+               (savedRecords.juniorYouthGroups?.length || 0) + 
+               (savedRecords.studyCircles?.length || 0)}
             </div>
             <div className="stat-label">Activities</div>
           </div>
@@ -121,53 +135,6 @@ const App = () => {
           <h2 className="info-banner-title">Cross-Platform Application</h2>
           <p className="info-banner-text">Works on Android, iOS, and Windows using Capacitor & Electron. All data stored locally.</p>
         </div>
-      </div>
-    );
-  };
-
-  // CREATE HANDLER FUNCTIONS FOR EACH FORM
-  const handleSaveLocality = (data) => {
-    saveRecord('localities', data);
-  };
-
-  const handleSaveIndividuals = (data) => {
-    saveRecord('individuals', data);
-  };
-
-  const handleSaveChildrenClasses = (data) => {
-    saveRecord('childrenClasses', data);
-  };
-
-  const handleSaveJuniorYouthGroups = (data) => {
-    saveRecord('juniorYouthGroups', data);
-  };
-
-  const handleSaveStudyCircles = (data) => {
-    saveRecord('studyCircles', data);
-  };
-
-  const RecordsList = ({ formType }) => {
-    const records = savedRecords[formType] || [];
-    return (
-      <div className="records-list">
-        <h3 className="records-title">Saved Records ({records.length})</h3>
-        {records.length === 0 ? (
-          <p className="records-empty">No records saved yet</p>
-        ) : (
-          <div className="records-container">
-            {records.map((record) => (
-              <div key={record.id} className="record-item">
-                <div>
-                  <p className="record-date">{new Date(record.timestamp).toLocaleString()}</p>
-                  <p className="record-info">{record.region || record.locality || 'Record #' + record.id}</p>
-                </div>
-                <button onClick={() => deleteRecord(formType, record.id)} className="btn-delete">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     );
   };
@@ -199,7 +166,8 @@ const App = () => {
               }}
               className={`mobile-nav-item ${activeView === 'dashboard' ? 'mobile-nav-item-active' : ''}`}
             >
-              <Home className="w-4 h-4" />Dashboard
+              <Home className="w-4 h-4" />
+              Dashboard
             </button>
             {forms.map(form => (
               <button 
@@ -210,7 +178,8 @@ const App = () => {
                 }}
                 className={`mobile-nav-item ${activeView === form.id ? 'mobile-nav-item-active' : ''}`}
               >
-                <form.icon className="w-4 h-4" />{form.name}
+                <form.icon className="w-4 h-4" />
+                {form.name}
               </button>
             ))}
           </nav>
@@ -223,62 +192,55 @@ const App = () => {
     const form = forms.find(f => f.id === activeView);
     if (!form) return null;
 
-    // Prepare data for the forms that need it
-    const localities = savedRecords.localities || [];
-    const individuals = savedRecords.individuals || [];
-
     return (
       <div className="page-container">
         <div className="page-header">
           <button onClick={() => setActiveView('dashboard')} className="btn-back">
-            <ArrowLeft className="w-4 h-4" />Back to Dashboard
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
           </button>
           <h1 className="page-title">{form.name}</h1>
         </div>
 
         <div className="page-content">
           {activeView === 'localities' && (
-            <LocalityForm 
-              onSave={handleSaveLocality} 
-              initialData={{}}
-            />
+            <LocalityForm onSave={(data) => saveRecord('localities', data)} />
           )}
           {activeView === 'individuals' && (
-            <IndividualsForm 
-              onSave={handleSaveIndividuals} 
-              initialData={{}}
-            />
+            <IndividualsForm onSave={(data) => saveRecord('individuals', data)} />
           )}
           {activeView === 'childrenClasses' && (
             <ChildrenClassesForm 
-              onSave={handleSaveChildrenClasses}
+              onSave={(data) => saveRecord('childrenClasses', data)}
+              localities={savedRecords.localities || []}
+              individuals={savedRecords.individuals || []}
               onCancel={() => setActiveView('dashboard')}
-              initialData={{}}
-              localities={localities}
-              individuals={individuals}
             />
           )}
           {activeView === 'juniorYouthGroups' && (
             <JuniorYouthGroupForm 
-              onSave={handleSaveJuniorYouthGroups}
+              onSave={(data) => saveRecord('juniorYouthGroups', data)}
+              localities={savedRecords.localities || []}
+              individuals={savedRecords.individuals || []}
               onCancel={() => setActiveView('dashboard')}
-              initialData={{}}
-              localities={localities}
-              individuals={individuals}
             />
           )}
           {activeView === 'studyCircles' && (
             <StudyCircleForm 
-              onSave={handleSaveStudyCircles}
+              onSave={(data) => saveRecord('studyCircles', data)}
+              localities={savedRecords.localities || []}
+              individuals={savedRecords.individuals || []}
               onCancel={() => setActiveView('dashboard')}
-              initialData={{}}
-              localities={localities}
-              individuals={individuals}
             />
           )}
         </div>
 
-        <RecordsList formType={activeView} />
+        <RecordsList 
+          title={`Saved ${form.name}`}
+          records={savedRecords[activeView] || []}
+          onDelete={(id) => deleteRecord(activeView, id)}
+          emptyMessage={`No ${form.name.toLowerCase()} records saved yet`}
+        />
       </div>
     );
   };
