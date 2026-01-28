@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Users, MapPin, BookOpen, ChevronRight, Menu, X, Download, ArrowLeft, Home } from 'lucide-react';
+import { 
+  Users, 
+  MapPin, 
+  Menu, 
+  X, 
+  Download, 
+  Home,
+  Activity,
+  Calendar,
+  FileText,
+  Settings
+} from 'lucide-react';
 import './App.css';
 
-// Import form components
-import LocalityForm from './components/Forms/LocalityForm';
-import IndividualsForm from './components/Forms/IndividualsForm';
-import ChildrenClassesForm from './components/Forms/ChildrenClassesForm';
-import JuniorYouthGroupForm from './components/Forms/JuniorYouthGroupForm';
-import StudyCircleForm from './components/Forms/StudyCircleForm';
-
-// Import shared components
-import RecordsList from './components/Shared/RecordsList';
+// Import components
+import Dashboard from './components/Dashboard/Dashboard';
+import LocationsView from './components/Locations/LocationsView';
+import IndividualsView from './components/Individuals/IndividualsView';
+import ActivitiesView from './components/Activities/ActivitiesView';
+import CyclesView from './components/Cycles/CyclesView';
+import ReportsView from './components/Reports/ReportsView';
+import ToolsView from './components/Tools/ToolsView';
 
 // Import utilities
 import { STORAGE_KEYS } from './utils/constants';
@@ -49,7 +59,7 @@ const App = () => {
     localStorage.setItem(STORAGE_KEYS[formType], JSON.stringify(records));
     setSavedRecords(prev => ({ ...prev, [formType]: records }));
     alert('Record saved successfully!');
-    loadAllData(); // Reload data
+    loadAllData();
   };
 
   const deleteRecord = (formType, id) => {
@@ -57,7 +67,7 @@ const App = () => {
     const records = savedRecords[formType].filter(r => r.id !== id);
     localStorage.setItem(STORAGE_KEYS[formType], JSON.stringify(records));
     setSavedRecords(prev => ({ ...prev, [formType]: records }));
-    loadAllData(); // Reload data
+    loadAllData();
   };
 
   const handleExportData = () => {
@@ -70,74 +80,16 @@ const App = () => {
     }
   };
 
-  const forms = [
-    { id: 'localities', name: 'Locality Details', icon: MapPin, color: 'bg-blue-500' },
-    { id: 'individuals', name: 'Basic Information', icon: Users, color: 'bg-green-500' },
-    { id: 'childrenClasses', name: "Children's Classes", icon: BookOpen, color: 'bg-pink-500' },
-    { id: 'juniorYouthGroups', name: 'Junior Youth Groups', icon: Users, color: 'bg-indigo-500' },
-    { id: 'studyCircles', name: 'Study Circles', icon: BookOpen, color: 'bg-teal-500' }
+  // Updated navigation items
+  const navigationItems = [
+    { id: 'dashboard', name: 'Dashboard', icon: Home },
+    { id: 'locations', name: 'Locations', icon: MapPin },
+    { id: 'individuals', name: 'Individuals', icon: Users },
+    { id: 'activities', name: 'Activities', icon: Activity },
+    { id: 'cycles', name: 'Cycles', icon: Calendar },
+    { id: 'reports', name: 'Reports', icon: FileText },
+    { id: 'tools', name: 'Tools', icon: Settings }
   ];
-
-  const DashboardView = () => {
-    const totalRecords = Object.values(savedRecords).reduce((sum, records) => sum + records.length, 0);
-
-    return (
-      <div className="dashboard-container">
-        <div className="dashboard-header">
-          <div>
-            <h1 className="dashboard-title">SRP Data Collection</h1>
-            <p className="dashboard-subtitle">Systematic Regional Program - Community Building</p>
-          </div>
-          <button onClick={handleExportData} className="btn-export">
-            <Download className="w-4 h-4" /> Export
-          </button>
-        </div>
-
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-value text-blue-600">{totalRecords}</div>
-            <div className="stat-label">Total Records</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value text-green-600">{savedRecords.localities?.length || 0}</div>
-            <div className="stat-label">Localities</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value text-purple-600">{savedRecords.individuals?.length || 0}</div>
-            <div className="stat-label">Individuals</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value text-orange-600">
-              {(savedRecords.childrenClasses?.length || 0) + 
-               (savedRecords.juniorYouthGroups?.length || 0) + 
-               (savedRecords.studyCircles?.length || 0)}
-            </div>
-            <div className="stat-label">Activities</div>
-          </div>
-        </div>
-
-        <div className="forms-grid">
-          {forms.map(form => (
-            <div key={form.id} onClick={() => setActiveView(form.id)} className="form-card">
-              <div className="form-card-header">
-                <div className={`form-icon ${form.color}`}>
-                  <form.icon className="w-6 h-6 text-white" />
-                </div>
-                <ChevronRight className="w-5 h-5 text-gray-400" />
-              </div>
-              <h3 className="form-card-title">{form.name}</h3>
-              <p className="form-card-count">{savedRecords[form.id]?.length || 0} records</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="info-banner">
-          <h2 className="info-banner-title">Cross-Platform Application</h2>
-          <p className="info-banner-text">Works on Android, iOS, and Windows using Capacitor & Electron. All data stored locally.</p>
-        </div>
-      </div>
-    );
-  };
 
   const MobileMenu = () => {
     if (!mobileMenuOpen) return null;
@@ -159,27 +111,17 @@ const App = () => {
             </button>
           </div>
           <nav className="mobile-nav">
-            <button 
-              onClick={() => {
-                setActiveView('dashboard');
-                setMobileMenuOpen(false);
-              }}
-              className={`mobile-nav-item ${activeView === 'dashboard' ? 'mobile-nav-item-active' : ''}`}
-            >
-              <Home className="w-4 h-4" />
-              Dashboard
-            </button>
-            {forms.map(form => (
+            {navigationItems.map(item => (
               <button 
-                key={form.id}
+                key={item.id}
                 onClick={() => {
-                  setActiveView(form.id);
+                  setActiveView(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`mobile-nav-item ${activeView === form.id ? 'mobile-nav-item-active' : ''}`}
+                className={`mobile-nav-item ${activeView === item.id ? 'mobile-nav-item-active' : ''}`}
               >
-                <form.icon className="w-4 h-4" />
-                {form.name}
+                <item.icon className="w-4 h-4" />
+                {item.name}
               </button>
             ))}
           </nav>
@@ -188,61 +130,58 @@ const App = () => {
     );
   };
 
-  const renderFormContent = () => {
-    const form = forms.find(f => f.id === activeView);
-    if (!form) return null;
-
-    return (
-      <div className="page-container">
-        <div className="page-header">
-          <button onClick={() => setActiveView('dashboard')} className="btn-back">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </button>
-          <h1 className="page-title">{form.name}</h1>
-        </div>
-
-        <div className="page-content">
-          {activeView === 'localities' && (
-            <LocalityForm onSave={(data) => saveRecord('localities', data)} />
-          )}
-          {activeView === 'individuals' && (
-            <IndividualsForm onSave={(data) => saveRecord('individuals', data)} />
-          )}
-          {activeView === 'childrenClasses' && (
-            <ChildrenClassesForm 
-              onSave={(data) => saveRecord('childrenClasses', data)}
-              localities={savedRecords.localities || []}
-              individuals={savedRecords.individuals || []}
-              onCancel={() => setActiveView('dashboard')}
-            />
-          )}
-          {activeView === 'juniorYouthGroups' && (
-            <JuniorYouthGroupForm 
-              onSave={(data) => saveRecord('juniorYouthGroups', data)}
-              localities={savedRecords.localities || []}
-              individuals={savedRecords.individuals || []}
-              onCancel={() => setActiveView('dashboard')}
-            />
-          )}
-          {activeView === 'studyCircles' && (
-            <StudyCircleForm 
-              onSave={(data) => saveRecord('studyCircles', data)}
-              localities={savedRecords.localities || []}
-              individuals={savedRecords.individuals || []}
-              onCancel={() => setActiveView('dashboard')}
-            />
-          )}
-        </div>
-
-        <RecordsList 
-          title={`Saved ${form.name}`}
-          records={savedRecords[activeView] || []}
-          onDelete={(id) => deleteRecord(activeView, id)}
-          emptyMessage={`No ${form.name.toLowerCase()} records saved yet`}
-        />
-      </div>
-    );
+  const renderView = () => {
+    switch (activeView) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'locations':
+        return (
+          <LocationsView 
+            savedRecords={savedRecords}
+            onSave={saveRecord}
+            onDelete={deleteRecord}
+          />
+        );
+      case 'individuals':
+        return (
+          <IndividualsView 
+            savedRecords={savedRecords}
+            onSave={saveRecord}
+            onDelete={deleteRecord}
+          />
+        );
+      case 'activities':
+        return (
+          <ActivitiesView 
+            savedRecords={savedRecords}
+            onSave={saveRecord}
+            onDelete={deleteRecord}
+          />
+        );
+      case 'cycles':
+        return (
+          <CyclesView 
+            savedRecords={savedRecords}
+            onSave={saveRecord}
+            onDelete={deleteRecord}
+          />
+        );
+      case 'reports':
+        return (
+          <ReportsView 
+            savedRecords={savedRecords}
+          />
+        );
+      case 'tools':
+        return (
+          <ToolsView 
+            savedRecords={savedRecords}
+            onExport={handleExportData}
+          />
+        );
+      default:
+        return <Dashboard />;
+    }
   };
 
   return (
@@ -256,9 +195,12 @@ const App = () => {
             <Menu className="w-6 h-6" />
           </button>
           <h1 className="header-title">SI-NSA SRP Data Collection</h1>
+          <button onClick={handleExportData} className="btn-export-header">
+            <Download className="w-4 h-4" />
+          </button>
         </div>
 
-        {activeView === 'dashboard' ? <DashboardView /> : renderFormContent()}
+        {renderView()}
       </div>
       
       <MobileMenu />
