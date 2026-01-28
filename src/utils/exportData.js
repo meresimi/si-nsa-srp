@@ -241,4 +241,32 @@ export const exportDataType = (dataType) => {
   switch (dataType) {
     case 'localities':
       csvContent = exportLocalitiesToCSV();
-      filename = generateFilename
+      filename = generateFilename('sinsa-srp-localities', 'csv');
+      break;
+    case 'individuals':
+      csvContent = exportIndividualsToCSV();
+      filename = generateFilename('sinsa-srp-individuals', 'csv');
+      break;
+    case 'childrenClasses':
+      csvContent = exportChildrenClassesToCSV();
+      filename = generateFilename('sinsa-srp-children-classes', 'csv');
+      break;
+    case 'juniorYouthGroups':
+      csvContent = exportJuniorYouthGroupsToCSV();
+      filename = generateFilename('sinsa-srp-junior-youth-groups', 'csv');
+      break;
+    case 'studyCircles':
+      csvContent = exportStudyCirclesToCSV();
+      filename = generateFilename('sinsa-srp-study-circles', 'csv');
+      break;
+    default:
+      console.error('Invalid data type for export');
+      return;
+  }
+  
+  if (csvContent) {
+    downloadCSV(csvContent, filename);
+  } else {
+    alert(`No ${dataType} data to export`);
+  }
+};
