@@ -10,6 +10,8 @@ import {
   TrendingUp,
   BarChart3
 } from 'lucide-react';
+import { STORAGE_KEYS } from '../../utils/constants';
+import { getAllRecords } from '../../utils/storage';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -30,16 +32,16 @@ const Dashboard = () => {
   useEffect(() => {
     const loadDashboardData = () => {
       try {
-        // Load individuals
-        const individualsData = JSON.parse(localStorage.getItem('srp_individuals') || '[]');
+        // Load individuals using consistent storage keys
+        const individualsData = getAllRecords(STORAGE_KEYS.individuals);
         
         // Load activities
-        const childrenClassesData = JSON.parse(localStorage.getItem('srp_children_classes') || '[]');
-        const juniorYouthGroupsData = JSON.parse(localStorage.getItem('srp_junior_youth_groups') || '[]');
-        const studyCirclesData = JSON.parse(localStorage.getItem('srp_study_circles') || '[]');
+        const childrenClassesData = getAllRecords(STORAGE_KEYS.childrenClasses);
+        const juniorYouthGroupsData = getAllRecords(STORAGE_KEYS.juniorYouthGroups);
+        const studyCirclesData = getAllRecords(STORAGE_KEYS.studyCircles);
         
         // Load localities
-        const localitiesData = JSON.parse(localStorage.getItem('srp_localities') || '[]');
+        const localitiesData = getAllRecords(STORAGE_KEYS.localities);
         
         // Calculate statistics
         const totalIndividuals = individualsData.length;
@@ -55,10 +57,10 @@ const Dashboard = () => {
         
         // Calculate total participants across all active activities
         const totalParticipants = [
-          ...childrenClassesData.filter(c => c.status === 'active'),
-          ...juniorYouthGroupsData.filter(g => g.status === 'active'),
-          ...studyCirclesData.filter(s => s.status === 'active')
-        ].reduce((sum, activity) => sum + (activity.participantsCount || 0), 0);
+          ...childrenClassesData.filter(c => c.status === 'active' || !c.status),
+          ...juniorYouthGroupsData.filter(g => g.status === 'active' || !g.status),
+          ...studyCirclesData.filter(s => s.status === 'active' || !s.status)
+        ].reduce((sum, activity) => sum + (activity.totalParticipants || 0), 0);
 
         // Update stats
         setStats({
@@ -90,7 +92,7 @@ const Dashboard = () => {
             color: 'bg-purple-100 text-purple-800' 
           }))
         ]
-        .sort((a, b) => new Date(b.startDate || b.createdAt) - new Date(a.startDate || a.createdAt))
+        .sort((a, b) => new Date(b.startDate || b.timestamp || b.createdAt) - new Date(a.startDate || a.timestamp || a.createdAt))
         .slice(0, 5);
 
         setRecentActivities(allActivities);
@@ -251,15 +253,15 @@ const Dashboard = () => {
                       {activity.locality || 'Not specified'}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {activity.participantsCount || 0}
+                      {activity.totalParticipants || 0}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        activity.status === 'active' 
+                        activity.status === 'active' || !activity.status
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {activity.status === 'active' ? 'Active' : 'Completed'}
+                        {activity.status === 'active' || !activity.status ? 'Active' : 'Completed'}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
